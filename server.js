@@ -1,24 +1,23 @@
-var express = require("express")
-var app = express()
-var db = require("./database.js")
-var md5 = require("md5")
-
-var bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
+var mysql = require('mysql');
+var express = require('express');
+var app = express();
 var HTTP_PORT = 8000
-
-// Start server
-app.listen(HTTP_PORT, () => {
+app.listen(8000,function(){
     console.log("Server running on port %PORT%".replace("%PORT%",HTTP_PORT))
 });
+var con = mysql.createConnection({
+  host: "sql6.freemysqlhosting.net",
+  user: "sql6581337",
+  password: "cg5PjRqaJI",
+  database: "sql6581337"
+});
+
 /////////////////////////////////////////////////////////////////////////////////////
 //User
 app.get("/api/users", (req, res, next) => {
     var sql = "select * from User"
     var params = []
-    db.all(sql, params, (err, rows) => {
+    con.query(sql, params, (err, rows) => {
         if (err) {
           res.status(400).json({"error":err.message});
           return;
@@ -30,11 +29,10 @@ app.get("/api/users", (req, res, next) => {
       });
 });
 
-
 app.get("/api/user/:id", (req, res, next) => {
     var sql = "select * from User where id = ?"
     var params = [req.params.id]
-    db.get(sql, params, (err, row) => {
+    con.query(sql, params, (err, row) => {
         if (err) {
           res.status(400).json({"error":err.message});
           return;
@@ -45,7 +43,6 @@ app.get("/api/user/:id", (req, res, next) => {
         })
       });
 });
-
 
 app.post("/api/user/", (req, res, next) => {
     var errors=[]
@@ -68,7 +65,7 @@ app.post("/api/user/", (req, res, next) => {
     }
     var sql ='INSERT INTO User (session, phone, signature, createdtime, isactive) VALUES (?,?,?,?,?)'
     var params =[data.session, data.phone, data.signature, data.createdtime, data.isactive]
-    db.run(sql, params, function (err, result) {
+    con.run(sql, params, function (err, result) {
         if (err){
             res.status(400).json({"error": err.message})
             return;
@@ -81,8 +78,6 @@ app.post("/api/user/", (req, res, next) => {
     });
 })
 
-
-
 app.patch("/api/user/:id", (req, res, next) => {
     var data = {
         phone: req.body.phone,
@@ -90,7 +85,7 @@ app.patch("/api/user/:id", (req, res, next) => {
 		createdtime: req.body.createdtime,
 		isactive: req.body.isactive
     }
-    db.run(
+    con.run(
         `UPDATE user set 
            isactive = coalesce(?,isactive) 
            WHERE id = ?`,
@@ -107,9 +102,8 @@ app.patch("/api/user/:id", (req, res, next) => {
     });
 })
 
-
 app.delete("/api/user/:id", (req, res, next) => {
-    db.run(
+    con.run(
         'DELETE FROM User WHERE id = ?',
         req.params.id,
         function (err, result) {
@@ -125,7 +119,7 @@ app.delete("/api/user/:id", (req, res, next) => {
 app.get("/api/file/:type", (req, res, next) => {
     var sql = "select * from File where type = ?"
     var params = [req.params.id]
-    db.get(sql, params, (err, row) => {
+    con.query(sql, params, (err, row) => {
         if (err) {
           res.status(400).json({"error":err.message});
           return;
@@ -141,7 +135,7 @@ app.get("/api/file/:type", (req, res, next) => {
 app.get("/api/logs", (req, res, next) => {
     var sql = "select * from Log ORDER BY id DESC LIMIT 200"
     var params = []
-    db.all(sql, params, (err, rows) => {
+    con.query(sql, params, (err, rows) => {
         if (err) {
           res.status(400).json({"error":err.message});
           return;
@@ -152,6 +146,7 @@ app.get("/api/logs", (req, res, next) => {
         })
       });
 });
+
 app.post("/api/log/", (req, res, next) => {
     var errors=[]
     if (!req.body.phone){
@@ -169,7 +164,7 @@ app.post("/api/log/", (req, res, next) => {
     }
     var sql ='INSERT INTO Log (phone, type, ip, time) VALUES (?,?,?,?)'
     var params =[data.phone, data.type, data.ip, data.time]
-    db.run(sql, params, function (err, result) {
+    con.run(sql, params, function (err, result) {
         if (err){
             res.status(400).json({"error": err.message})
             return;
@@ -186,7 +181,7 @@ app.post("/api/log/", (req, res, next) => {
 app.get("/api/telegrams", (req, res, next) => {
     var sql = "select * from Telegram ORDER BY id DESC LIMIT 100"
     var params = []
-    db.all(sql, params, (err, rows) => {
+    con.query(sql, params, (err, rows) => {
         if (err) {
           res.status(400).json({"error":err.message});
           return;
@@ -198,11 +193,10 @@ app.get("/api/telegrams", (req, res, next) => {
       });
 });
 
-
 app.get("/api/telegram/:id", (req, res, next) => {
     var sql = "select * from Telegram where id = ?"
     var params = [req.params.id]
-    db.get(sql, params, (err, row) => {
+    con.query(sql, params, (err, row) => {
         if (err) {
           res.status(400).json({"error":err.message});
           return;
@@ -213,7 +207,6 @@ app.get("/api/telegram/:id", (req, res, next) => {
         })
       });
 });
-
 
 app.post("/api/telegram/", (req, res, next) => {
     var errors=[]
@@ -234,7 +227,7 @@ app.post("/api/telegram/", (req, res, next) => {
     }
     var sql ='INSERT INTO Telegram (phone, message, createdtime, status) VALUES (?,?,?,?)'
     var params =[data.phone, data.message, data.createdtime, 0]
-    db.run(sql, params, function (err, result) {
+    con.run(sql, params, function (err, result) {
         if (err){
             res.status(400).json({"error": err.message})
             return;
@@ -247,13 +240,11 @@ app.post("/api/telegram/", (req, res, next) => {
     });
 })
 
-
-
 app.patch("/api/telegram/:id", (req, res, next) => {
     var data = {
 		status: req.body.status
     }
-    db.run(
+    con.run(
         `UPDATE user set 
            status = coalesce(?,status) 
            WHERE id = ?`,
@@ -270,9 +261,8 @@ app.patch("/api/telegram/:id", (req, res, next) => {
     });
 })
 
-
 app.delete("/api/telegram/:id", (req, res, next) => {
-    db.run(
+    con.run(
         'DELETE FROM Telegram WHERE id = ?',
         req.params.id,
         function (err, result) {
@@ -288,4 +278,6 @@ app.delete("/api/telegram/:id", (req, res, next) => {
 app.get("/", (req, res, next) => {
     res.json({"message":"Ok"})
 });
+
+
 
