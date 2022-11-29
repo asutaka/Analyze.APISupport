@@ -1,27 +1,67 @@
 'use strict'
+var repo = require('./../repo');
+const mysql = require('mysql')
+const db = require('./../db')
 
 //Product
 module.exports = {
     get: (req, res) => {
-        return repo.productList();
+		let sql = 'SELECT * FROM products'
+		db.query(sql, (err, response) => {
+			if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+			return res.json(response);
+		});
     },
 	
     detail: (req, res) => {
-		return repo.productDetail(req.params.id);
+		let sql = 'SELECT * FROM products WHERE id = ?'
+		let id = req.params.id;
+        db.query(sql, [id], (err, response) => {
+			if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+			return res.json(response[0]);
+         })
     },
 	
     update: (req, res) => {
         let data = req.body;
         let id = req.params.id;
-        return repo.productUpdate(data.name, data.color, data.price, id);
+		let sql = 'UPDATE products SET name = ?, color = ?, price = ? WHERE id = ?'
+        db.query(sql, [data.name, data.color, data.price, id], (err, response) => {
+            if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+            return res.json({ success: true });
+        })
     },
 	
     store: (req, res) => {
         let data = req.body;
-        return repo.productStore(data.id, data.name, data.color, data.price);
+		let sql = 'INSERT INTO products VALUES (?, ?, ?, ?)'
+        db.query(sql, [data.id, data.name, data.color, data.price], (err, response) => {
+			if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+            return res.json({ success: true });
+        })
     },
 	
     delete: (req, res) => {
-        return repo.productDelete(req.params.id);
+		let sql = 'DELETE FROM products WHERE id = ?'
+		let id = req.params.id;
+		db.query(sql, (err,[id], response) => {
+			if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+			return res.json({ success: true });
+		});
     }
 }

@@ -1,27 +1,67 @@
 'use strict'
-
+'use strict'
+var repo = require('./../repo');
+const mysql = require('mysql')
+const db = require('./../db')
 //User
 module.exports = {
     get: (req, res) => {
-        return repo.userList();
+        let sql = 'SELECT * FROM User'
+		db.query(sql, (err, response) => {
+			if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+			return res.json(response);
+		})
     },
 	
     detail: (req, res) => {
-		return repo.userDetail(req.params.id);
+		let sql = 'SELECT * FROM User WHERE id = ?'
+		let id = req.params.id;
+        db.query(sql, [id], (err, response) => {
+			if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+            return response[0];
+        })
     },
 	
     update: (req, res) => {
         let data = req.body;
         let id = req.params.id;
-        return repo.userUpdate(data.session, data.phone, data.signature, data.createdtime, data.isactive, id);
+		let sql = 'UPDATE User SET session = ?, phone = ?, signature = ?, createdtime = ?, isactive = ? WHERE id = ?'
+        db.query(sql, [data.session, data.phone, data.signature, data.createdtime, data.isactive, id], (err, response) => {
+            if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+            return res.json({ success: true });
+        })
     },
 	
     store: (req, res) => {
         let data = req.body;
-        return repo.userStore(data.session, data.phone, data.signature, data.createdtime, data.isactive, data.id);
+		let sql = 'INSERT INTO User VALUES (?, ?, ?, ?, ?, ?)'
+        db.query(sql, [data.id, data.session, data.phone, data.signature, data.createdtime, data.isactive], (err, response) => {
+			if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+            return res.json({ success: true });
+        })
     },
 	
     delete: (req, res) => {
-        return repo.userDelete(req.params.id);
+		let sql = 'DELETE FROM User WHERE id = ?'
+		let id = req.params.id;
+		db.query(sql, (err,[id], response) => {
+			if (err)
+			{
+				return res.json({ success: false, detail: err });
+			} 
+			return res.json({ success: true });
+		})
     }
 }
