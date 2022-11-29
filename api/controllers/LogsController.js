@@ -1,6 +1,5 @@
 'use strict'
 'use strict'
-var repo = require('./../repo');
 const mysql = require('mysql')
 const db = require('./../db')
 //Log

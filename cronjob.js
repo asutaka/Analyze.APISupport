@@ -10,7 +10,7 @@ module.exports = {
 			db.query(sql, (err, response) => {
 				if (err)
 				{
-					console.log(err)
+					console.log("|ERROR(Get List Telegram)| %o", err)
 					return;
 				} 
 				response.forEach(element => {
