@@ -17,5 +17,9 @@
     "nodemon": "^2.0.20",
     "path": "^0.12.7",
     "util": "^0.12.5"
+  },
+  "devDependencies": {
+    "input": "^1.0.1",
+    "telegram": "^2.14.7"
   }
 }
