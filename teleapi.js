@@ -1,6 +1,7 @@
 const { Api, TelegramClient } = require('telegram')
 const { StringSession } = require('telegram/sessions')
 const input = require('input') // npm i input
+const db = require('./api/db')
 
 const apiId = 5052850
 const apiHash = '7d860f6c17f883764807b7747b906a75'
@@ -8,22 +9,44 @@ const stringSession = new StringSession('1BQANOTEuMTA4LjU2LjE1MAG7aHAHIqJNCqyjjv
 const client = new TelegramClient(stringSession, apiId, apiHash, { connectionRetries: 5 });
 
 module.exports = {
+	connect: async () => {
+		await client.connect(); // This assumes you have already authenticated with .start()
+	},
 	sendMessage: async (_phone, _message) => {
-		  await client.connect(); // This assumes you have already authenticated with .start()
-
-		  const result = await client.invoke(
-			new Api.contacts.ImportContacts({
-			  contacts: [
-				new Api.InputPhoneContact({
-				  clientId: 12345678,
-				  phone: _phone,
-				  firstName: "",
-				  lastName: "",
-				}),
-			  ],
-			})
-		  );
-		  await client.sendMessage(result.users[0].id.value, { message: _message });
+		let sql = 'SELECT * FROM TelegramUser WHERE phone = ?'
+		var telId = 0;
+        db.query(sql, [_phone], (err, response) => {
+			if (err)
+			{
+				console.log("TeleAPI|ERROR(Get TelegramUser)| %o", err)
+				return;
+			} 
+			if(response.length > 0){
+				telId = response[0].id;
+			}
+        });
+		
+		if(telId <= 0)
+		{
+			const result = await client.invoke(
+				new Api.contacts.ImportContacts({
+				  contacts: [
+					new Api.InputPhoneContact({
+					  clientId: 12345678,
+					  phone: _phone,
+					  firstName: "",
+					  lastName: "",
+					}),
+				  ],
+				})
+			);
+			
+			if(result.users.length > 0){
+				telId = result.users[0].id.value;
+			}
 		}
+
+		await client.sendMessage(telId, { message: _message });
+	}
 }
 
