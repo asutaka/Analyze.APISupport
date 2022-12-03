@@ -1,6 +1,7 @@
 'use strict'
 const mysql = require('mysql')
 const db = require('./../db')
+const tele = require('./../../teleapi')
 //Telegram
 module.exports = {
     get: (req, res) => {
@@ -61,5 +62,18 @@ module.exports = {
 			} 
 			return res.json({ success: true });
 		})
+    },
+	
+	send: (req, res) => {
+		let data = req.body;
+		try
+		{
+			tele.sendMessage(data.phone, data.message);
+		}
+		catch(error)
+		{
+			console.log("TelegramController|ERROR(SendMessage)|",data.phone, data.message, error);
+		}
+		return res.json({ success: true });
     }
 }

@@ -28,7 +28,7 @@ module.exports = function(app) {
   //Telegram
   app.route('/telegrams')
     .get(telegramsCtrl.get)
-    .post(telegramsCtrl.store);
+    .post(telegramsCtrl.send);
 
   app.route('/telegrams/:id')
     .put(telegramsCtrl.update)
