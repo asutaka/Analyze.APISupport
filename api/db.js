@@ -2,10 +2,10 @@
 const mysql = require('mysql');
 
 const db = mysql.createConnection({
-  host: process.env.DB_HOST || "sql6.freemysqlhosting.net",
-  user: process.env.DB_USER || "sql6581337",
-  password: process.env.DB_PASSWORD || "cg5PjRqaJI",
-  database: process.env.DB_NAME || "sql6581337"
+  host: process.env.DB_HOST || "db4free.net",
+  user: process.env.DB_USER || "asutaka",
+  password: process.env.DB_PASSWORD || "7sm.!_zDHSvgQ33",
+  database: process.env.DB_NAME || "analyze12354"
 });
 
 module.exports = db
