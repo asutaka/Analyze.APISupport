@@ -10,7 +10,7 @@ module.exports = {
         MAINURL = url;
     },
     JobCheck: async () => {
-        new cron.CronJob('0/10 * * * * *', async () => {
+        new cron.CronJob('10 0/10 * * * *', async () => {
             console.log("START", MAINURL);
             if(MAINURL == null || MAINURL == "")
             {
