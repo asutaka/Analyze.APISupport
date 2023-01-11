@@ -1,6 +1,7 @@
 const tele = require('./teleapi');
 const express = require('express');
-const { JobCheck, URL, SetMainURL } = require('./cronjob.js');
+const axios = require("axios");
+const { JobCheck, URLM, SUBM, FixData, SetMainURL } = require('./cronjob.js');
 
 const app = express();
 app.use(express.json());
@@ -8,6 +9,7 @@ const port = process.env.PORT || 8000
 
 // tele.connect();
 JobCheck();
+FixData();
 app.listen(port)
 console.log('RESTful API server started on: ' + port)
 
@@ -42,34 +44,15 @@ app.post('/domain/main', async (req, res)  => {
 });
 
 app.get('/domain/main', function(req, res) {
-    return  res.status(200).json({data: URL });
+    URLM((dat) => {
+        return  res.status(200).json({ data : dat });
+    });
 });
 
-app.get('/domain/sub', async () => {
-    try{
-        if(URL == null || URL == "")
-        {
-            return res.status(200).json({msg: "URL main is Empty", data: null });
-        }
-        let res = await axios.get(URL + '/domain');
-        return res.status(200).json({msg: "success", data: res });
-    }
-    catch(e)
-    {
-        return res.status(200).json({msg: "error", data: null });
-    }
+app.get('/domain/sub', async (req, res) => {
+    SUBM((data) => {
+        return  res.status(200).json({ data });
+    });
 });
 
-app.post('/fixData', async (req, res)  => {
-    let data = req.body;
-    try
-    {
-       //take here
-    }
-    catch(error)
-    {
-        console.log("/fixData|ERROR|", error);
-    }
-    return res.message(200).json({ success: true });
-});
 
